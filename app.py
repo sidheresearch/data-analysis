@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
 import pickle
 import uuid
+import gc  # For garbage collection
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-this-to-random-string'  # Change this to a random secret key
@@ -129,11 +130,15 @@ def round_assess_value(assess_val):
 def process_excel_file(input_path, output_path):
     """Process the Excel file according to the specifications"""
     try:
-        # Read the Excel file
-        df = pd.read_excel(input_path)
+        # Read the Excel file with engine openpyxl for better performance
+        df = pd.read_excel(input_path, engine='openpyxl')
         
         # Create a copy for processing
         processed_df = df.copy()
+        
+        # Clear original df to free memory
+        del df
+        gc.collect()
         
         # 1. Change 'EWB No.' to 'Serial No'
         if 'EWB No.' in processed_df.columns:
