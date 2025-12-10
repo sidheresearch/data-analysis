@@ -408,8 +408,10 @@ def upload_file():
         
         if success:
             # Load processed data into session
-            processed_data = pd.read_excel(output_path)
+            processed_data = pd.read_excel(output_path, engine='openpyxl')
             save_to_session(processed_data)
+            del processed_data
+            gc.collect()
             flash(message)
             return render_template('success.html', 
                                  download_filename=output_filename,
@@ -617,9 +619,9 @@ def process_data_cleaner(main_file_path, price_file_path, output_path):
     5. Highlight non-updated rows in yellow
     """
     try:
-        # Read both Excel files
-        main_df = pd.read_excel(main_file_path)
-        price_df = pd.read_excel(price_file_path)
+        # Read both Excel files with optimized engine
+        main_df = pd.read_excel(main_file_path, engine='openpyxl')
+        price_df = pd.read_excel(price_file_path, engine='openpyxl')
         
         # Clean up column names - remove extra spaces and newlines
         main_df.columns = [str(col).strip().replace('\n', ' ').replace('\r', ' ') for col in main_df.columns]
