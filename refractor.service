@@ -1,4 +1,4 @@
-[Unit]
+curl ifconfig.me[Unit]
 Description=Excel Refractor Flask Application
 After=network.target
 
