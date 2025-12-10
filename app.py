@@ -14,6 +14,7 @@ app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-this-to-random-string'  # Change this to a random secret key
 
 # Configuration
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload size
 UPLOAD_FOLDER = 'uploads'
 PROCESSED_FOLDER = 'processed'
 CACHE_FOLDER = 'cache'
