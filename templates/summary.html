@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary - Excel Refractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .summary-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .product-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-list li:last-child {
+            border-bottom: none;
+        }
+
+        .total-value {
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px auto;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Summary</h1>
+
+    {% for pan, group in summary.groupby(['PAN', 'NAME']) %}
+        <div class="summary-section">
+            <div class="summary-header">PAN: {{ pan[0] }} | Name: {{ pan[1] }}</div>
+            <ul class="product-list">
+                {% for _, row in group.iterrows() %}
+                    <li>{{ row['HSN Desc.'] }}: ₹{{ "{:,}".format(row['product_value']) }}</li>
+                {% endfor %}
+            </ul>
+            <div class="total-value">Total Value: ₹{{ "{:,}".format(group['total_value'].iloc[0]) }}</div>
+        </div>
+    {% endfor %}
+
+    <a href="/" class="btn">Back to Home</a>
+</body>
+</html>

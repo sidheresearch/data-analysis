@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Analysis - Excel Refractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .seller-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .seller-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .buyer-section {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9ff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .buyer-section:hover {
+            background-color: #e8ebff;
+        }
+
+        .buyer-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .product-list.show {
+            display: block;
+        }
+
+        .product-list li {
+            padding: 5px 15px;
+            border-bottom: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        .product-list li:last-child {
+            border-bottom: none;
+        }
+
+        .buyer-total {
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+
+        .seller-total {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #dc3545;
+            margin-top: 15px;
+            text-align: right;
+            border-top: 2px solid #667eea;
+            padding-top: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 5px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #764ba2;
+        }
+
+        .toggle-indicator {
+            float: right;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏢 Seller Competitive Analysis</h1>
+    
+    {% for seller_name, seller_group in analysis_data['processed_data'].groupby('SELLER_NAME') %}
+        {% if seller_name and seller_name != 'None' %}
+        <div class="seller-section">
+            <div class="seller-header">
+                🏭 {{ seller_name }}
+            </div>
+            
+            {% for buyer_name, buyer_group in seller_group.groupby('NAME') %}
+                {% if buyer_name and buyer_name != 'Unknown' %}
+                <div class="buyer-section" onclick="toggleProducts('buyer_{{ loop.index0 }}_{{ loop.index }}')">
+                    <div class="buyer-header">
+                        🏢 {{ buyer_name }}
+                        <span class="toggle-indicator">▼</span>
+                    </div>
+                    
+                    <ul class="product-list" id="buyer_{{ loop.index0 }}_{{ loop.index }}">
+                        {% for _, row in buyer_group.iterrows() %}
+                            <li>📦 {{ row['HSN Desc.'] }}: ₹{{ "{:,}".format(row['VALUE']|int) }}</li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="buyer-total">
+                        💰 Total Sales to {{ buyer_name }}: ₹{{ "{:,}".format(buyer_group['VALUE'].sum()|int) }}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <div class="seller-total">
+                🎯 Grand Total for {{ seller_name }}: ₹{{ "{:,}".format(seller_group['VALUE'].sum()|int) }}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="/download_analysis/{{ analysis_filename }}" class="btn">
+            📥 Download Analysis File
+        </a>
+        <a href="/summary" class="btn">
+            📊 View Buyer Summary
+        </a>
+        <a href="/" class="btn">
+            🔄 Process Another File
+        </a>
+    </div>
+
+    <script>
+        function toggleProducts(id) {
+            const productList = document.getElementById(id);
+            const indicator = productList.parentElement.querySelector('.toggle-indicator');
+            
+            if (productList.classList.contains('show')) {
+                productList.classList.remove('show');
+                indicator.textContent = '▼';
+            } else {
+                productList.classList.add('show');
+                indicator.textContent = '▲';
+            }
+        }
+
+        // Add click animation
+        document.querySelectorAll('.buyer-section').forEach(section => {
+            section.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

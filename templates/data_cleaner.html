@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Sheet Cleaner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .back-btn {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: #764ba2;
+        }
+
+        .upload-section {
+            margin: 30px 0;
+            padding: 25px;
+            background-color: #f8f9ff;
+            border-radius: 10px;
+            border: 2px solid #e0e4ff;
+        }
+
+        .upload-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .upload-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: white;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background-color: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background-color: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+            display: none;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(45deg, #ccc, #999);
+            cursor: not-allowed;
+        }
+
+        .flash-messages {
+            margin: 20px 0;
+        }
+
+        .flash-message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .flash-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .info-box {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+        
+        <h1>📊 Data Sheet Cleaner</h1>
+        <p class="subtitle">Match and update HSN codes between two Excel sheets</p>
+
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message flash-error">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="info-box">
+            <h4>How it works:</h4>
+            <ul>
+                <li>Upload your main data Excel file</li>
+                <li>Upload the Average Price List Excel file</li>
+                <li>Both files should contain an "HSN Code" column</li>
+                <li>Price list should have "Item Name" column</li>
+                <li>Matching HSN codes will update "HSN Desc" in the main file</li>
+                <li>Non-updated rows will be highlighted in yellow</li>
+            </ul>
+        </div>
+
+        <form action="/data_cleaner/process" method="post" enctype="multipart/form-data" id="cleanerForm">
+            
+            <!-- Main File Upload -->
+            <div class="upload-section">
+                <h3>1. Main Excel File</h3>
+                <p>Your primary data file that needs to be updated</p>
+                
+                <div class="upload-area" id="uploadArea1">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">
+                        <strong>Click to select</strong> or drag and drop
+                    </div>
+                    <div style="color: #999; font-size: 0.9em;">
+                        Supported: .xlsx, .xls
+                    </div>
+                    <input type="file" id="fileInput1" name="main_file" accept=".xlsx,.xls" class="file-input" required>
+                </div>
+
+                <div class="file-info" id="fileInfo1">
+                    <div class="file-name" id="fileName1"></div>
+                    <div class="file-size" id="fileSize1"></div>
+                </div>
+            </div>
+
+            <!-- Price List Upload -->
+            <div class="upload-section">
+                <h3>2. Average Price List File</h3>
+                <p>Reference file containing HSN codes and Item Names</p>
+                
+                <div class="upload-area" id="uploadArea2">
+                    <div class="upload-icon">📋</div>
+                    <div class="upload-text">
+                        <strong>Click to select</strong> or drag and drop
+                    </div>
+                    <div style="color: #999; font-size: 0.9em;">
+                        Supported: .xlsx, .xls
+                    </div>
+                    <input type="file" id="fileInput2" name="price_file" accept=".xlsx,.xls" class="file-input" required>
+                </div>
+
+                <div class="file-info" id="fileInfo2">
+                    <div class="file-name" id="fileName2"></div>
+                    <div class="file-size" id="fileSize2"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn" disabled>
+                🚀 Process and Clean Data
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Upload handlers for File 1
+        const uploadArea1 = document.getElementById('uploadArea1');
+        const fileInput1 = document.getElementById('fileInput1');
+        const fileInfo1 = document.getElementById('fileInfo1');
+        const fileName1 = document.getElementById('fileName1');
+        const fileSize1 = document.getElementById('fileSize1');
+
+        // Upload handlers for File 2
+        const uploadArea2 = document.getElementById('uploadArea2');
+        const fileInput2 = document.getElementById('fileInput2');
+        const fileInfo2 = document.getElementById('fileInfo2');
+        const fileName2 = document.getElementById('fileName2');
+        const fileSize2 = document.getElementById('fileSize2');
+
+        const submitBtn = document.getElementById('submitBtn');
+
+        function setupUploadArea(uploadArea, fileInput, fileName, fileSize, fileInfo) {
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+                        fileInput.files = files;
+                        displayFileInfo(file, fileName, fileSize, fileInfo);
+                        checkBothFilesSelected();
+                    } else {
+                        alert('Please select an Excel file (.xlsx or .xls)');
+                    }
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    displayFileInfo(e.target.files[0], fileName, fileSize, fileInfo);
+                    checkBothFilesSelected();
+                }
+            });
+        }
+
+        function displayFileInfo(file, nameElement, sizeElement, infoElement) {
+            nameElement.textContent = file.name;
+            sizeElement.textContent = `Size: ${(file.size / 1024).toFixed(1)} KB`;
+            infoElement.style.display = 'block';
+        }
+
+        function checkBothFilesSelected() {
+            if (fileInput1.files.length > 0 && fileInput2.files.length > 0) {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Setup both upload areas
+        setupUploadArea(uploadArea1, fileInput1, fileName1, fileSize1, fileInfo1);
+        setupUploadArea(uploadArea2, fileInput2, fileName2, fileSize2, fileInfo2);
+    </script>
+</body>
+</html>

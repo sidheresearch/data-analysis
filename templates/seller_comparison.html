@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Comparison - Excel Refractor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .comparison-form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .selector-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .selector {
+            flex: 1;
+        }
+
+        .selector label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .selector select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            background-color: #fff;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+
+        .selector select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .vs-indicator {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 0 20px;
+        }
+
+        .compare-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: center;
+            margin-top: 20px;
+        }
+
+        .compare-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .compare-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .stats-preview {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stats-preview h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seller Comparison Tool</h1>
+        
+        <form class="comparison-form" action="/compare_sellers" method="GET">
+            <div class="selector-group">
+                <div class="selector">
+                    <label for="seller1">First Seller Company:</label>
+                    <select id="seller1" name="seller1" required>
+                        <option value="">Select first seller...</option>
+                        {% for seller in sellers %}
+                            <option value="{{ seller }}">{{ seller }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="vs-indicator">VS</div>
+                
+                <div class="selector">
+                    <label for="seller2">Second Seller Company:</label>
+                    <select id="seller2" name="seller2" required>
+                        <option value="">Select second seller...</option>
+                        {% for seller in sellers %}
+                            <option value="{{ seller }}">{{ seller }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="compare-btn" id="compareBtn" disabled>
+                Compare Sellers
+            </button>
+        </form>
+
+        <div class="stats-preview">
+            <h3>Available Data Overview</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">{{ sellers|length }}</div>
+                    <div class="stat-label">Total Sellers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ analysis_data['processed_data']['NAME'].nunique() }}</div>
+                    <div class="stat-label">Total Buyers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ analysis_data['processed_data']['HSN Desc.'].nunique() }}</div>
+                    <div class="stat-label">Unique Products</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">₹{{ "{:,}".format(analysis_data['processed_data']['VALUE'].sum()|int) }}</div>
+                    <div class="stat-label">Total Transaction Value</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="/" class="back-btn">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const seller1 = document.getElementById('seller1');
+        const seller2 = document.getElementById('seller2');
+        const compareBtn = document.getElementById('compareBtn');
+
+        function updateCompareButton() {
+            const canCompare = seller1.value && seller2.value && seller1.value !== seller2.value;
+            compareBtn.disabled = !canCompare;
+            
+            if (seller1.value === seller2.value && seller1.value) {
+                compareBtn.textContent = 'Please select different sellers';
+            } else if (canCompare) {
+                compareBtn.textContent = 'Compare Sellers';
+            } else {
+                compareBtn.textContent = 'Select both sellers to compare';
+            }
+        }
+
+        seller1.addEventListener('change', updateCompareButton);
+        seller2.addEventListener('change', updateCompareButton);
+
+        // Prevent selecting the same seller in both dropdowns
+        seller1.addEventListener('change', function() {
+            Array.from(seller2.options).forEach(option => {
+                option.disabled = option.value === seller1.value;
+            });
+        });
+
+        seller2.addEventListener('change', function() {
+            Array.from(seller1.options).forEach(option => {
+                option.disabled = option.value === seller2.value;
+            });
+        });
+    </script>
+</body>
+</html>

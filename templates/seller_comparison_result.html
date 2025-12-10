@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Comparison Results - Excel Refractor</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        th {
+            background-color: #4472C4;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #305496;
+            font-size: 14px;
+        }
+
+        th.seller-header {
+            background-color: #4472C4;
+            font-size: 16px;
+        }
+
+        th.buyer-header {
+            background-color: #4472C4;
+            text-align: left;
+            width: 250px;
+        }
+
+        th.product-header {
+            background-color: #4472C4;
+            text-align: left;
+            min-width: 150px;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        td.buyer-cell {
+            background-color: #D9E1F2;
+            font-weight: bold;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        td.product-cell {
+            background-color: white;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        td.value-cell {
+            background-color: white;
+            text-align: right;
+            font-weight: normal;
+        }
+
+        td.qty-cell {
+            background-color: white;
+            text-align: center;
+        }
+
+        tr.total-row td {
+            background-color: #D9E1F2;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        tr.grand-total-row td {
+            background-color: #4472C4;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .empty-cell {
+            background-color: #f9f9f9;
+            text-align: center;
+            color: #999;
+        }
+
+        .navigation-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4472C4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #305496;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            gap: 10px;
+        }
+
+        .pagination a, .pagination span {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background: white;
+        }
+
+        .pagination a:hover {
+            background: #4472C4;
+            color: white;
+        }
+
+        .pagination .current {
+            background: #4472C4;
+            color: white;
+            border-color: #4472C4;
+        }
+
+        .seller-label {
+            font-size: 12px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .seller-code {
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .filter-buttons {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-filter {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-filter.product {
+            background: #70AD47;
+            color: white;
+        }
+
+        .btn-filter.product:hover {
+            background: #5a8c38;
+        }
+
+        .btn-filter.buyer {
+            background: #FFC000;
+            color: white;
+        }
+
+        .btn-filter.buyer:hover {
+            background: #d9a300;
+        }
+
+        .btn-filter.reset {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-filter.reset:hover {
+            background: #5a6268;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .search-box label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #4472C4;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            color: #999;
+            font-size: 18px;
+        }
+
+        .clear-icon {
+            position: absolute;
+            right: 35px;
+            top: 38px;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+        }
+
+        .clear-icon:hover {
+            color: #333;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+
+        .autocomplete-active {
+            background-color: #4472C4 !important;
+            color: #ffffff;
+        }
+
+        .no-results {
+            padding: 10px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .search-clear-btn {
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 28px;
+        }
+
+        .search-clear-btn:hover {
+            background: #c82333;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Seller Comparison Results</h1>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <label for="buyerSearch">Search by Buyer Name:</label>
+            <input type="text" id="buyerSearch" placeholder="Type buyer name..." autocomplete="off">
+            <span class="clear-icon" id="buyerClear" onclick="clearBuyerSearch()">✕</span>
+            <span class="search-icon">🔍</span>
+            <div id="buyerAutocomplete" class="autocomplete-items"></div>
+        </div>
+        <div class="search-box">
+            <label for="productSearch">Search by Product:</label>
+            <input type="text" id="productSearch" placeholder="Type product name..." autocomplete="off">
+            <span class="clear-icon" id="productClear" onclick="clearProductSearch()">✕</span>
+            <span class="search-icon">🔍</span>
+            <div id="productAutocomplete" class="autocomplete-items"></div>
+        </div>
+        <button class="search-clear-btn" onclick="clearAllFilters()">Clear All Filters</button>
+    </div>
+
+    <div class="filter-buttons">
+        <button class="btn-filter product" onclick="sortByProductValue()">Sort by Product Value (High to Low)</button>
+        <button class="btn-filter buyer" onclick="sortByBuyerValue()">Sort by Buyer Value (High to Low)</button>
+        <button class="btn-filter reset" onclick="resetSort()">Reset to Original</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="buyer-header">BUYER</th>
+                    <th class="product-header">PRODUCT</th>
+                    <th class="seller-header" colspan="2">
+                        {{ seller1 }}
+                    </th>
+                    <th class="seller-header" colspan="2">
+                        {{ seller2 }}
+                    </th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th style="min-width: 120px;">VALUE</th>
+                    <th style="min-width: 100px;">QTY. MT</th>
+                    <th style="min-width: 120px;">VALUE</th>
+                    <th style="min-width: 100px;">QTY. MT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set all_buyers = (seller1_buyers_page + seller2_buyers)|unique|list %}
+                {% for buyer in all_buyers %}
+                    {% set buyer_data1 = seller1_data[seller1_data['NAME'] == buyer] %}
+                    {% set buyer_data2 = seller2_data[seller2_data['NAME'] == buyer] %}
+                    {% set products1 = buyer_data1['HSN Desc.'].tolist() if buyer_data1|length > 0 else [] %}
+                    {% set products2 = buyer_data2['HSN Desc.'].tolist() if buyer_data2|length > 0 else [] %}
+                    {% set all_products = (products1 + products2)|unique|list %}
+                    {% set max_rows = all_products|length %}
+                    
+                    {% for i in range(max_rows) %}
+                    <tr>
+                        {% if i == 0 %}
+                        <td class="buyer-cell" rowspan="{{ max_rows + 1 }}">{{ buyer }}</td>
+                        {% endif %}
+                        
+                        {% if i < all_products|length %}
+                        <td class="product-cell">{{ all_products[i] }}</td>
+                        {% else %}
+                        <td class="product-cell"></td>
+                        {% endif %}
+                        
+                        <!-- Seller 1 Data -->
+                        {% set prod_data1 = buyer_data1[buyer_data1['HSN Desc.'] == all_products[i]] if i < all_products|length else None %}
+                        {% if prod_data1 is not none and prod_data1|length > 0 %}
+                            <td class="value-cell">{{ "{:,}".format(prod_data1['VALUE'].iloc[0]|int) }}</td>
+                            <td class="qty-cell">
+                                {% if 'product_quantity' in prod_data1.columns and prod_data1['product_quantity'].iloc[0] is not none %}
+                                    {{ "{:,.2f}".format(prod_data1['product_quantity'].iloc[0]) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        {% else %}
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        {% endif %}
+                        
+                        <!-- Seller 2 Data -->
+                        {% set prod_data2 = buyer_data2[buyer_data2['HSN Desc.'] == all_products[i]] if i < all_products|length else None %}
+                        {% if prod_data2 is not none and prod_data2|length > 0 %}
+                            <td class="value-cell">{{ "{:,}".format(prod_data2['VALUE'].iloc[0]|int) }}</td>
+                            <td class="qty-cell">
+                                {% if 'product_quantity' in prod_data2.columns and prod_data2['product_quantity'].iloc[0] is not none %}
+                                    {{ "{:,.2f}".format(prod_data2['product_quantity'].iloc[0]) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        {% else %}
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- Buyer Total Row -->
+                    <tr class="total-row">
+                        <td class="product-cell" style="text-align: right; font-weight: bold;">Total</td>
+                        <td class="value-cell">{{ "{:,}".format(buyer_data1['VALUE'].sum()|int) if buyer_data1|length > 0 else '-' }}</td>
+                        <td class="qty-cell">
+                            {% if 'product_quantity' in buyer_data1.columns and buyer_data1|length > 0 %}
+                                {{ "{:,.2f}".format(buyer_data1['product_quantity'].sum()) }}
+                            {% else %}
+                                
+                            {% endif %}
+                        </td>
+                        <td class="value-cell">{{ "{:,}".format(buyer_data2['VALUE'].sum()|int) if buyer_data2|length > 0 else '-' }}</td>
+                        <td class="qty-cell">
+                            {% if 'product_quantity' in buyer_data2.columns and buyer_data2|length > 0 %}
+                                {{ "{:,.2f}".format(buyer_data2['product_quantity'].sum()) }}
+                            {% else %}
+                                
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                {% endfor %}
+                
+                <!-- Grand Total Row -->
+                <tr class="grand-total-row">
+                    <td colspan="2">GRAND TOTAL</td>
+                    <td>{{ "{:,}".format(seller1_total|int) }}</td>
+                    <td>{{ "{:,.2f}".format(seller1_qty_total) if seller1_qty_total else '' }}</td>
+                    <td>{{ "{:,}".format(seller2_total|int) }}</td>
+                    <td>{{ "{:,.2f}".format(seller2_qty_total) if seller2_qty_total else '' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="?seller1={{ seller1 }}&seller2={{ seller2 }}&page={{ current_page - 1 }}">Previous</a>
+        {% endif %}
+        
+        {% for page_num in range(1, total_pages + 1) %}
+            {% if page_num == current_page %}
+                <span class="current">{{ page_num }}</span>
+            {% else %}
+                <a href="?seller1={{ seller1 }}&seller2={{ seller2 }}&page={{ page_num }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if current_page < total_pages %}
+            <a href="?seller1={{ seller1 }}&seller2={{ seller2 }}&page={{ current_page + 1 }}">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="navigation-buttons">
+        <a href="/seller_comparison" class="btn btn-primary">Compare Different Sellers</a>
+        <a href="/summary" class="btn btn-secondary">View Summary</a>
+        <a href="/" class="btn btn-secondary">Back to Home</a>
+    </div>
+
+    <script>
+        // Store original order of rows
+        let originalOrder = [];
+        let allBuyers = [];
+        let allProducts = [];
+        
+        // Initialize original order on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const tbody = document.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row)'));
+            originalOrder = rows.map(row => row.cloneNode(true));
+            
+            // Extract all unique buyers and products
+            extractBuyersAndProducts();
+            
+            // Setup search event listeners
+            setupSearch();
+        });
+
+        function extractBuyersAndProducts() {
+            const tbody = document.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row):not(.total-row)'));
+            
+            let buyersSet = new Set();
+            let productsSet = new Set();
+            
+            rows.forEach(row => {
+                const buyerCell = row.querySelector('.buyer-cell');
+                if (buyerCell) {
+                    buyersSet.add(buyerCell.textContent.trim());
+                }
+                
+                const productCell = row.querySelector('.product-cell');
+                if (productCell && productCell.textContent.trim()) {
+                    productsSet.add(productCell.textContent.trim());
+                }
+            });
+            
+            allBuyers = Array.from(buyersSet).sort();
+            allProducts = Array.from(productsSet).sort();
+        }
+
+        function setupSearch() {
+            const buyerInput = document.getElementById('buyerSearch');
+            const productInput = document.getElementById('productSearch');
+            
+            // Buyer search autocomplete
+            buyerInput.addEventListener('input', function() {
+                const value = this.value;
+                document.getElementById('buyerClear').style.display = value ? 'block' : 'none';
+                showAutocomplete(value, allBuyers, 'buyerAutocomplete', selectBuyer);
+            });
+            
+            buyerInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    filterByBuyer(this.value);
+                }
+            });
+            
+            // Product search autocomplete
+            productInput.addEventListener('input', function() {
+                const value = this.value;
+                document.getElementById('productClear').style.display = value ? 'block' : 'none';
+                showAutocomplete(value, allProducts, 'productAutocomplete', selectProduct);
+            });
+            
+            productInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    filterByProduct(this.value);
+                }
+            });
+            
+            // Close autocomplete when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-box')) {
+                    document.getElementById('buyerAutocomplete').innerHTML = '';
+                    document.getElementById('productAutocomplete').innerHTML = '';
+                }
+            });
+        }
+
+        function showAutocomplete(value, items, containerId, selectCallback) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (!value) return;
+            
+            const filtered = items.filter(item => 
+                item.toLowerCase().includes(value.toLowerCase())
+            );
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-results">No matches found</div>';
+                return;
+            }
+            
+            filtered.slice(0, 10).forEach(item => {
+                const div = document.createElement('div');
+                div.textContent = item;
+                div.addEventListener('click', function() {
+                    selectCallback(item);
+                });
+                container.appendChild(div);
+            });
+        }
+
+        function selectBuyer(buyer) {
+            document.getElementById('buyerSearch').value = buyer;
+            document.getElementById('buyerAutocomplete').innerHTML = '';
+            document.getElementById('buyerClear').style.display = 'block';
+            filterByBuyer(buyer);
+        }
+
+        function selectProduct(product) {
+            document.getElementById('productSearch').value = product;
+            document.getElementById('productAutocomplete').innerHTML = '';
+            document.getElementById('productClear').style.display = 'block';
+            filterByProduct(product);
+        }
+
+        function filterByBuyer(buyerName) {
+            if (!buyerName) {
+                showAllRows();
+                return;
+            }
+            
+            const tbody = document.querySelector('tbody');
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row)'));
+            const productSearchValue = document.getElementById('productSearch').value.toLowerCase();
+            
+            let buyerGroups = [];
+            let currentBuyerGroup = [];
+            let currentBuyer = null;
+            let buyerCellElement = null;
+            
+            // Organize rows into buyer groups
+            allRows.forEach(row => {
+                if (row.classList.contains('total-row')) {
+                    if (currentBuyerGroup.length > 0) {
+                        buyerGroups.push({
+                            buyer: currentBuyer,
+                            buyerCell: buyerCellElement,
+                            productRows: currentBuyerGroup,
+                            totalRow: row
+                        });
+                    }
+                    currentBuyerGroup = [];
+                    currentBuyer = null;
+                    buyerCellElement = null;
+                } else {
+                    const buyerCell = row.querySelector('.buyer-cell');
+                    if (buyerCell) {
+                        currentBuyer = buyerCell.textContent.trim();
+                        buyerCellElement = buyerCell.cloneNode(true);
+                    }
+                    currentBuyerGroup.push(row);
+                }
+            });
+            
+            // Process each buyer group
+            buyerGroups.forEach(group => {
+                const matchesBuyer = group.buyer && 
+                    group.buyer.toLowerCase().includes(buyerName.toLowerCase());
+                
+                if (!matchesBuyer) {
+                    // Hide entire buyer group
+                    group.productRows.forEach(row => row.classList.add('hidden'));
+                    group.totalRow.classList.add('hidden');
+                } else {
+                    // Check product filter if exists
+                    let visibleRows = [];
+                    
+                    group.productRows.forEach(row => {
+                        // Remove any existing buyer cell
+                        const existingBuyerCell = row.querySelector('.buyer-cell');
+                        if (existingBuyerCell) {
+                            existingBuyerCell.remove();
+                        }
+                        
+                        const productCell = row.querySelector('.product-cell');
+                        const productText = productCell ? productCell.textContent.trim().toLowerCase() : '';
+                        const matchesProduct = !productSearchValue || 
+                            productText.includes(productSearchValue);
+                        
+                        if (matchesProduct) {
+                            row.classList.remove('hidden');
+                            visibleRows.push(row);
+                        } else {
+                            row.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Show/hide total row and add buyer cell to first visible row
+                    if (visibleRows.length > 0) {
+                        group.totalRow.classList.remove('hidden');
+                        
+                        // Add buyer cell to the first visible row with correct rowspan
+                        const newBuyerCell = group.buyerCell.cloneNode(true);
+                        newBuyerCell.setAttribute('rowspan', visibleRows.length + 1);
+                        visibleRows[0].insertBefore(newBuyerCell, visibleRows[0].firstChild);
+                    } else {
+                        group.totalRow.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function filterByProduct(productName) {
+            if (!productName) {
+                showAllRows();
+                return;
+            }
+            
+            const tbody = document.querySelector('tbody');
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row)'));
+            const buyerSearchValue = document.getElementById('buyerSearch').value.toLowerCase();
+            
+            let buyerGroups = [];
+            let currentBuyerGroup = [];
+            let currentBuyer = null;
+            let buyerCellElement = null;
+            
+            // First, organize rows into buyer groups
+            allRows.forEach(row => {
+                if (row.classList.contains('total-row')) {
+                    if (currentBuyerGroup.length > 0) {
+                        buyerGroups.push({
+                            buyer: currentBuyer,
+                            buyerCell: buyerCellElement,
+                            productRows: currentBuyerGroup,
+                            totalRow: row
+                        });
+                    }
+                    currentBuyerGroup = [];
+                    currentBuyer = null;
+                    buyerCellElement = null;
+                } else {
+                    const buyerCell = row.querySelector('.buyer-cell');
+                    if (buyerCell) {
+                        currentBuyer = buyerCell.textContent.trim();
+                        buyerCellElement = buyerCell.cloneNode(true);
+                    }
+                    currentBuyerGroup.push(row);
+                }
+            });
+            
+            // Process each buyer group
+            buyerGroups.forEach(group => {
+                let hasMatchingProducts = false;
+                let visibleRows = [];
+                
+                const matchesBuyer = !buyerSearchValue || 
+                    (group.buyer && group.buyer.toLowerCase().includes(buyerSearchValue));
+                
+                group.productRows.forEach(row => {
+                    const productCell = row.querySelector('.product-cell');
+                    const productText = productCell ? productCell.textContent.trim().toLowerCase() : '';
+                    const matchesProduct = productText.includes(productName.toLowerCase());
+                    
+                    // Remove any existing buyer cell from this row
+                    const existingBuyerCell = row.querySelector('.buyer-cell');
+                    if (existingBuyerCell) {
+                        existingBuyerCell.remove();
+                    }
+                    
+                    if (matchesProduct && matchesBuyer) {
+                        row.classList.remove('hidden');
+                        visibleRows.push(row);
+                        hasMatchingProducts = true;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+                
+                // Show/hide total row and add buyer cell to first visible row
+                if (hasMatchingProducts && visibleRows.length > 0) {
+                    group.totalRow.classList.remove('hidden');
+                    
+                    // Add buyer cell to the first visible row with correct rowspan
+                    const newBuyerCell = group.buyerCell.cloneNode(true);
+                    newBuyerCell.setAttribute('rowspan', visibleRows.length + 1);
+                    visibleRows[0].insertBefore(newBuyerCell, visibleRows[0].firstChild);
+                } else {
+                    group.totalRow.classList.add('hidden');
+                }
+            });
+        }
+
+        function showAllRows() {
+            const tbody = document.querySelector('tbody');
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row)'));
+            
+            let buyerGroups = [];
+            let currentBuyerGroup = [];
+            let currentBuyer = null;
+            let buyerCellElement = null;
+            
+            // Organize rows into buyer groups
+            allRows.forEach(row => {
+                if (row.classList.contains('total-row')) {
+                    if (currentBuyerGroup.length > 0) {
+                        buyerGroups.push({
+                            buyer: currentBuyer,
+                            buyerCell: buyerCellElement,
+                            productRows: currentBuyerGroup,
+                            totalRow: row
+                        });
+                    }
+                    currentBuyerGroup = [];
+                    currentBuyer = null;
+                    buyerCellElement = null;
+                } else {
+                    const buyerCell = row.querySelector('.buyer-cell');
+                    if (buyerCell) {
+                        currentBuyer = buyerCell.textContent.trim();
+                        buyerCellElement = buyerCell.cloneNode(true);
+                    }
+                    currentBuyerGroup.push(row);
+                }
+            });
+            
+            // Restore all rows with proper structure
+            buyerGroups.forEach(group => {
+                group.productRows.forEach((row, index) => {
+                    row.classList.remove('hidden');
+                    
+                    // Remove any existing buyer cell
+                    const existingBuyerCell = row.querySelector('.buyer-cell');
+                    if (existingBuyerCell) {
+                        existingBuyerCell.remove();
+                    }
+                    
+                    // Add buyer cell to first row only
+                    if (index === 0 && group.buyerCell) {
+                        const newBuyerCell = group.buyerCell.cloneNode(true);
+                        newBuyerCell.setAttribute('rowspan', group.productRows.length + 1);
+                        row.insertBefore(newBuyerCell, row.firstChild);
+                    }
+                });
+                
+                group.totalRow.classList.remove('hidden');
+            });
+        }
+
+        function clearBuyerSearch() {
+            document.getElementById('buyerSearch').value = '';
+            document.getElementById('buyerClear').style.display = 'none';
+            document.getElementById('buyerAutocomplete').innerHTML = '';
+            
+            const productSearch = document.getElementById('productSearch').value;
+            if (productSearch) {
+                filterByProduct(productSearch);
+            } else {
+                showAllRows();
+            }
+        }
+
+        function clearProductSearch() {
+            document.getElementById('productSearch').value = '';
+            document.getElementById('productClear').style.display = 'none';
+            document.getElementById('productAutocomplete').innerHTML = '';
+            
+            const buyerSearch = document.getElementById('buyerSearch').value;
+            if (buyerSearch) {
+                filterByBuyer(buyerSearch);
+            } else {
+                showAllRows();
+            }
+        }
+
+        function clearAllFilters() {
+            document.getElementById('buyerSearch').value = '';
+            document.getElementById('productSearch').value = '';
+            document.getElementById('buyerClear').style.display = 'none';
+            document.getElementById('productClear').style.display = 'none';
+            document.getElementById('buyerAutocomplete').innerHTML = '';
+            document.getElementById('productAutocomplete').innerHTML = '';
+            showAllRows();
+            resetSort();
+        }
+
+        function parseValue(valueStr) {
+            // Remove commas and convert to number
+            return parseFloat(valueStr.replace(/,/g, '')) || 0;
+        }
+
+        function sortByProductValue() {
+            const tbody = document.querySelector('tbody');
+            const grandTotalRow = tbody.querySelector('tr.grand-total-row');
+            
+            // Get all buyer groups (including their total rows)
+            let buyerGroups = [];
+            let currentGroup = [];
+            let currentBuyer = null;
+            let buyerCellElement = null;
+            
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row)'));
+            
+            allRows.forEach(row => {
+                if (row.classList.contains('total-row')) {
+                    // Add the total row to the current group
+                    currentGroup.push(row);
+                    buyerGroups.push({
+                        buyer: currentBuyer,
+                        buyerCell: buyerCellElement,
+                        rows: currentGroup,
+                        totalRow: row
+                    });
+                    currentGroup = [];
+                    currentBuyer = null;
+                    buyerCellElement = null;
+                } else {
+                    // Get buyer name from first cell if it exists
+                    const buyerCell = row.querySelector('.buyer-cell');
+                    if (buyerCell) {
+                        currentBuyer = buyerCell.textContent.trim();
+                        buyerCellElement = buyerCell.cloneNode(true);
+                    }
+                    currentGroup.push(row);
+                }
+            });
+            
+            // Sort each buyer group's products by value (sum of both sellers)
+            buyerGroups.forEach(group => {
+                let productRows = group.rows.filter(row => !row.classList.contains('total-row'));
+                
+                // Create array of product data with values for sorting
+                let productData = productRows.map(row => {
+                    const valueCells = Array.from(row.querySelectorAll('td')).filter(td => 
+                        td.classList.contains('value-cell'));
+                    
+                    let totalValue = 0;
+                    valueCells.forEach(cell => {
+                        if (cell.textContent.trim() !== '-') {
+                            totalValue += parseValue(cell.textContent);
+                        }
+                    });
+                    
+                    return {
+                        row: row,
+                        totalValue: totalValue
+                    };
+                });
+                
+                // Sort by total value descending
+                productData.sort((a, b) => b.totalValue - a.totalValue);
+                
+                // Rebuild rows without buyer cells, then add buyer cell to first row
+                productData.forEach((item, index) => {
+                    const row = item.row;
+                    // Remove any existing buyer cell
+                    const existingBuyerCell = row.querySelector('.buyer-cell');
+                    if (existingBuyerCell) {
+                        existingBuyerCell.remove();
+                    }
+                    
+                    // Add buyer cell to first row only
+                    if (index === 0 && group.buyerCell) {
+                        const newBuyerCell = group.buyerCell.cloneNode(true);
+                        newBuyerCell.setAttribute('rowspan', productData.length + 1);
+                        row.insertBefore(newBuyerCell, row.firstChild);
+                    }
+                });
+                
+                group.rows = [...productData.map(item => item.row), group.totalRow];
+            });
+            
+            // Clear tbody and rebuild
+            tbody.innerHTML = '';
+            buyerGroups.forEach(group => {
+                group.rows.forEach(row => tbody.appendChild(row));
+            });
+            tbody.appendChild(grandTotalRow);
+        }
+
+        function sortByBuyerValue() {
+            const tbody = document.querySelector('tbody');
+            const grandTotalRow = tbody.querySelector('tr.grand-total-row');
+            
+            // Get all buyer groups
+            let buyerGroups = [];
+            let currentGroup = [];
+            let currentBuyer = null;
+            let buyerCellElement = null;
+            
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(.grand-total-row)'));
+            
+            allRows.forEach(row => {
+                if (row.classList.contains('total-row')) {
+                    currentGroup.push(row);
+                    
+                    // Calculate total value for this buyer (sum of both sellers)
+                    const valueCells = Array.from(row.querySelectorAll('.value-cell'));
+                    let totalValue = 0;
+                    valueCells.forEach(cell => {
+                        if (cell.textContent.trim() !== '-') {
+                            totalValue += parseValue(cell.textContent);
+                        }
+                    });
+                    
+                    buyerGroups.push({
+                        buyer: currentBuyer,
+                        buyerCell: buyerCellElement,
+                        rows: currentGroup,
+                        totalValue: totalValue
+                    });
+                    currentGroup = [];
+                    currentBuyer = null;
+                    buyerCellElement = null;
+                } else {
+                    const buyerCell = row.querySelector('.buyer-cell');
+                    if (buyerCell) {
+                        currentBuyer = buyerCell.textContent.trim();
+                        buyerCellElement = buyerCell.cloneNode(true);
+                    }
+                    currentGroup.push(row);
+                }
+            });
+            
+            // Sort buyer groups by total value (descending)
+            buyerGroups.sort((a, b) => b.totalValue - a.totalValue);
+            
+            // Ensure proper rowspan for each group
+            buyerGroups.forEach(group => {
+                let productRows = group.rows.filter(row => !row.classList.contains('total-row'));
+                
+                // Remove all buyer cells from all rows
+                productRows.forEach(row => {
+                    const existingBuyerCell = row.querySelector('.buyer-cell');
+                    if (existingBuyerCell) {
+                        existingBuyerCell.remove();
+                    }
+                });
+                
+                // Add buyer cell to first row with correct rowspan
+                if (productRows.length > 0 && group.buyerCell) {
+                    const newBuyerCell = group.buyerCell.cloneNode(true);
+                    newBuyerCell.setAttribute('rowspan', productRows.length + 1);
+                    productRows[0].insertBefore(newBuyerCell, productRows[0].firstChild);
+                }
+            });
+            
+            // Clear tbody and rebuild
+            tbody.innerHTML = '';
+            buyerGroups.forEach(group => {
+                group.rows.forEach(row => tbody.appendChild(row));
+            });
+            tbody.appendChild(grandTotalRow);
+        }
+
+        function resetSort() {
+            const tbody = document.querySelector('tbody');
+            const grandTotalRow = tbody.querySelector('tr.grand-total-row');
+            
+            // Clear tbody
+            tbody.innerHTML = '';
+            
+            // Restore original order
+            originalOrder.forEach(row => {
+                tbody.appendChild(row.cloneNode(true));
+            });
+            
+            // Re-add grand total at the end
+            tbody.appendChild(grandTotalRow);
+        }
+    </script>
+</body>
+</html>

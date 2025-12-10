@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success - Excel Refractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 4em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .message {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .file-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .file-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            color: #666;
+            font-size: 0.95em;
+            margin: 5px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .flash-messages {
+            margin: 20px 0;
+        }
+
+        .flash-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .processing-info {
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .processing-info h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .processing-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .processing-info li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+        }
+
+        .processing-info li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">🎉</div>
+        <h1>Processing Complete!</h1>
+        
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <p class="message">
+            Your Excel file has been successfully processed and is ready for download.
+        </p>
+
+        <div class="file-info">
+            <h3>📄 File Information</h3>
+            <div class="file-name"><strong>Original File:</strong> {{ original_filename }}</div>
+            <div class="file-name"><strong>Processed File:</strong> {{ download_filename }}</div>
+        </div>
+
+        <div class="processing-info">
+            <h3>🔧 Changes Applied</h3>
+            <ul>
+                <li>Renamed "EWB No." column to "Serial No"</li>
+                <li>Extracted GSTIN from "To GSTIN & Name"</li>
+                <li>Extracted PAN number from GSTIN (characters 3-10)</li>
+                <li>Extracted NAME from "To GSTIN & Name"</li>
+                <li>Formatted dates from "EWB No. & Dt." to DD-MM-YYYY</li>
+                <li>Created VALUE column by rounding "Assess Val."</li>
+                <li>Removed unnecessary columns</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="/download/{{ download_filename }}" class="btn">
+                📥 Download Processed File
+            </a>
+            <a href="/summary" class="btn btn-secondary">
+                📊 View Summary
+            </a>
+            <a href="/seller_comparison" class="btn btn-secondary">
+                🔄 Compare Sellers
+            </a>
+            <a href="/" class="btn btn-secondary">
+                📊 Process Another File
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-focus on download button for better UX
+        window.addEventListener('load', function() {
+            const downloadBtn = document.querySelector('a[href*="/download/"]');
+            if (downloadBtn) {
+                downloadBtn.focus();
+            }
+        });
+
+        // Add some interactive feedback
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.href.includes('/download/')) {
+                    this.innerHTML = '⏳ Downloading...';
+                    setTimeout(() => {
+                        this.innerHTML = '📥 Download Processed File';
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
